@@ -7,13 +7,15 @@
 #
 Name     : passt
 Version  : 2024.06.24.1ee2eca
-Release  : 1
+Release  : 2
 URL      : https://passt.top/passt/snapshot/passt-2024_06_24.1ee2eca.tar.gz
 Source0  : https://passt.top/passt/snapshot/passt-2024_06_24.1ee2eca.tar.gz
 Summary  : SELinux support for passt and pasta
 Group    : Development/Tools
 License  : BSD-3-Clause GPL-2.0 GPL-2.0+
+Requires: passt-bin = %{version}-%{release}
 Requires: passt-license = %{version}-%{release}
+Requires: passt-man = %{version}-%{release}
 # Suppress stripping binaries
 %define __strip /bin/true
 %define debug_package %{nil}
@@ -29,12 +31,38 @@ for network namespaces: traffic is forwarded using a tap interface inside the
 namespace, without the need to create further interfaces on the host, hence not
 requiring any capabilities or privileges.
 
+%package bin
+Summary: bin components for the passt package.
+Group: Binaries
+Requires: passt-license = %{version}-%{release}
+
+%description bin
+bin components for the passt package.
+
+
+%package doc
+Summary: doc components for the passt package.
+Group: Documentation
+Requires: passt-man = %{version}-%{release}
+
+%description doc
+doc components for the passt package.
+
+
 %package license
 Summary: license components for the passt package.
 Group: Default
 
 %description license
 license components for the passt package.
+
+
+%package man
+Summary: man components for the passt package.
+Group: Default
+
+%description man
+man components for the passt package.
 
 
 %prep
@@ -46,7 +74,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1719613942
+export SOURCE_DATE_EPOCH=1719614366
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -80,9 +108,13 @@ FFLAGS="$CLEAR_INTERMEDIATE_FFLAGS"
 FCFLAGS="$CLEAR_INTERMEDIATE_FCFLAGS"
 ASFLAGS="$CLEAR_INTERMEDIATE_ASFLAGS"
 LDFLAGS="$CLEAR_INTERMEDIATE_LDFLAGS"
-export SOURCE_DATE_EPOCH=1719613942
+export SOURCE_DATE_EPOCH=1719614366
 rm -rf %{buildroot}
+## install_prepend content
+export prefix=/usr
+## install_prepend end
 mkdir -p %{buildroot}/usr/share/package-licenses/passt
+cp %{_builddir}/passt-2024_06_24.1ee2eca/LICENSES/BSD-3-Clause.txt %{buildroot}/usr/share/package-licenses/passt/70ff66e16fb65b6657be219076627ef3937206c2 || :
 cp %{_builddir}/passt-2024_06_24.1ee2eca/LICENSES/GPL-2.0-or-later.txt %{buildroot}/usr/share/package-licenses/passt/3cb34cfc72e87654683f2894299adf912d14b284 || :
 export GOAMD64=v2
 GOAMD64=v2
@@ -91,6 +123,25 @@ GOAMD64=v2
 %files
 %defattr(-,root,root,-)
 
+%files bin
+%defattr(-,root,root,-)
+/usr/bin/passt
+/usr/bin/passt.avx2
+/usr/bin/pasta
+/usr/bin/pasta.avx2
+/usr/bin/qrap
+
+%files doc
+%defattr(0644,root,root,0755)
+/usr/share/doc/passt/*
+
 %files license
 %defattr(0644,root,root,0755)
 /usr/share/package-licenses/passt/3cb34cfc72e87654683f2894299adf912d14b284
+/usr/share/package-licenses/passt/70ff66e16fb65b6657be219076627ef3937206c2
+
+%files man
+%defattr(0644,root,root,0755)
+/usr/share/man/man1/passt.1
+/usr/share/man/man1/pasta.1
+/usr/share/man/man1/qrap.1
